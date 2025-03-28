@@ -16,7 +16,6 @@ const getTokenFrom = (request) => {
 };
 
 ordersRouter.get("/", async (request, response) => {
-	console.log("orders get request: ", config.SECRET);
 	const decodedToken = jwt.verify(getTokenFrom(request), config.SECRET);
 	if (!decodedToken.id) {
 		return response.status(401).json({ error: "token invalid" });
@@ -27,7 +26,6 @@ ordersRouter.get("/", async (request, response) => {
 });
 
 ordersRouter.put("/:id", (request, response, next) => {
-	console.log("orders PUT: ", request.body);
 	const decodedToken = jwt.verify(getTokenFrom(request), config.SECRET);
 	if (!decodedToken.id) {
 		return response.status(401).json({ error: "token invalid" });
@@ -97,7 +95,6 @@ ordersRouter.post("/fetchClientSecret", async (request, response) => {
 
 	const pricelists = await Pricelist.find({});
 	const pricelist = pricelists[0];
-	console.log("orders controller: ", request.body);
 
 	let amount = body.items.reduce(
 		(acc, val) =>
@@ -131,8 +128,6 @@ ordersRouter.post("/cancelPaymentIntent", async (request, response) => {
 
 	const intent = await stripe.paymentIntents.cancel(intentId);
 
-	console.log("order cancelled");
-
 	response.json(intent).status(201);
 });
 
@@ -142,19 +137,12 @@ ordersRouter.post("/refund", async (request, response) => {
 		return response.status(401).json({ error: "token invalid" });
 	}
 
-	console.log(
-		"orders controller refund: ",
-		request.body,
-		request.body.intentId
-	);
 	const body = request.body;
 	let intentId = body.intentId;
 
 	const refund = await stripe.refunds.create({
 		payment_intent: intentId,
 	});
-
-	console.log("order refunded");
 
 	response.json(refund).status(201);
 });
